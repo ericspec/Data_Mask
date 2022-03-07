@@ -1,0 +1,49 @@
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
+from faker import Factory
+import random
+
+def mask_nome():
+  faker = Factory.create()
+  return faker.name()
+
+def mask_cpfcnpj(cpfcnpj):
+  if cpfcnpj != None :
+    return ''.join(random.sample(cpfcnpj, len(cpfcnpj)))
+
+def mask_complemento(complemento):
+  if complemento != None :
+    return ''.join(random.sample(complemento,len(complemento)))
+
+def mask_celular(celular):
+  if celular != None :
+    return ''.join(random.sample(celular, len(celular)))
+
+def mask_email():
+  faker = Factory.create()
+  return faker.email()
+
+def mask_endereco():
+  faker = Factory.create()
+  return faker.address()
+
+def mask_num_logra():
+  faker = Factory.create()
+  return faker.random_int()
+
+
+# REGISTRA COMO FUNCTION NO UDF
+gera_faker_name = udf(mask_nome, StringType())
+gera_faker_email = udf(mask_email, StringType())
+gera_faker_endereco = udf(mask_endereco, StringType())
+gera_faker_num_logra = udf(mask_num_logra, StringType())
+
+embaralha_cpfcnpj = udf(lambda x: mask_cpfcnpj(x), StringType())
+embaralha_complemento = udf(lambda x: mask_complemento(x), StringType())
+embaralha_celular = udf(lambda x: mask_celular(x), StringType())
+
+def mask_cep(nomecoluna):
+  return regexp_replace(nomecoluna, r'-([0-9]{3})', '-000')
+
+def mask_dtnascimento(nomecoluna):
+  return concat(regexp_extract(nomecoluna, r'[0-9]{4}', 0), lit("-00-00"))
